@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Voice Interview Agent — Prototype</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="sheet">
+  <header>
+    <h1>Voice Interview Agent</h1>
+    <span class="tag">prototype v0.1</span>
+  </header>
+
+  <div id="unsupported" class="support">
+    [ STT UNAVAILABLE ] Your browser does not expose the Web Speech API. Use Chrome or Edge over HTTPS,
+    or type your answer directly into the transcript box below as a fallback.
+  </div>
+
+  <div id="interview-view">
+    <div class="progress" id="progress-text">Question 1 of 5</div>
+    <div class="bar"><i id="progress-bar" style="width:20%"></i></div>
+
+    <div class="card">
+      <div class="qnum" id="qnum">Q01</div>
+      <p class="question" id="question-text">—</p>
+
+      <div class="controls">
+        <button class="record" id="record-btn">● Record Answer</button>
+        <button id="rerecord-btn" disabled>↺ Re-record</button>
+        <button id="evaluate-btn" disabled>Evaluate</button>
+      </div>
+      <div class="status" id="status-text"></div>
+      <div class="error" id="error-text"></div>
+
+      <div class="transcript-box">
+        <div class="transcript-label">Transcript (editable)</div>
+        <textarea id="transcript-area" placeholder="Your spoken answer will appear here. You may also type/edit directly."></textarea>
+      </div>
+
+      <div class="eval" id="eval-box">
+        <div class="score-row">
+          <span class="score" id="score-val">–</span>
+          <span class="score-label">/ 10</span>
+        </div>
+        <div class="feedback" id="feedback-text"></div>
+        <div class="keywords-hit" id="keywords-hit"></div>
+      </div>
+
+      <div class="nav-row">
+        <button id="next-btn" disabled>Next Question →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary" id="summary-view">
+    <div class="card">
+      <div class="qnum">INTERVIEW COMPLETE</div>
+      <div class="avg" id="avg-score">–</div>
+      <table id="summary-table">
+        <thead><tr><th>#</th><th>Question</th><th>Score</th><th>Status</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="actions">
+        <button id="show-json-btn">View JSON Output</button>
+        <button id="download-json-btn">Download transcript.json</button>
+        <button id="restart-btn">Restart Interview</button>
+      </div>
+      <div class="json-out" id="json-out" style="display:none; margin-top:14px;"></div>
+    </div>
+  </div>
+
+  <footer>Runs fully client-side · STT via Web Speech API · No data leaves the browser</footer>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
