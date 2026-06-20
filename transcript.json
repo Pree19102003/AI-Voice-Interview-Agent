@@ -1,0 +1,96 @@
+{
+  "interview_summary": [
+    {
+      "question": "Explain REST APIs.",
+      "score": 6
+    },
+    {
+      "question": "What is the difference between SQL and NoSQL databases?",
+      "score": 4
+    },
+    {
+      "question": "Describe what happens when you type a URL into a browser and press Enter.",
+      "score": 5
+    },
+    {
+      "question": "What is object-oriented programming and why is it useful?",
+      "score": 8
+    },
+    {
+      "question": "How would you debug a slow-running API endpoint in production?",
+      "score": 5
+    }
+  ],
+  "average_score": 5.6,
+  "detailed_results": [
+    {
+      "question": "Explain REST APIs.",
+      "transcript": "REST API is a way for client and server to communicate over HTTP. It uses methods like GET, POST, PUT and DELETE to send and receive data. Most recipe API returns data in Json format.",
+      "score": 6,
+      "status": "evaluated",
+      "keywords_hit": [
+        "http",
+        "get",
+        "post",
+        "put",
+        "delete",
+        "json",
+        "client",
+        "server"
+      ]
+    },
+    {
+      "question": "What is the difference between SQL and NoSQL databases?",
+      "transcript": "SQL database store data in tables with a fixed schema and are used for structured data. No SQL database store data in format like document.",
+      "score": 4,
+      "status": "evaluated",
+      "keywords_hit": [
+        "schema",
+        "table",
+        "document",
+        "structured"
+      ]
+    },
+    {
+      "question": "Describe what happens when you type a URL into a browser and press Enter.",
+      "transcript": "When I type URL, the browser finds the website IP address using domain name server. Then it sends an HTTP request to the server. The server responds with the web page and the browser displays it.",
+      "score": 5,
+      "status": "evaluated",
+      "keywords_hit": [
+        "ip",
+        "http",
+        "server",
+        "request",
+        "browser"
+      ]
+    },
+    {
+      "question": "What is object-oriented programming and why is it useful?",
+      "transcript": "It is a programming method based on classes and object. It uses concept like inheritance, encapsulation, polymorphism and abstraction. It makes code reusable, organized and easier to maintain.",
+      "score": 8,
+      "status": "evaluated",
+      "keywords_hit": [
+        "class",
+        "object",
+        "inheritance",
+        "encapsulation",
+        "polymorphism",
+        "abstraction",
+        "method"
+      ]
+    },
+    {
+      "question": "How would you debug a slow-running API endpoint in production?",
+      "transcript": "I would first check the logs to find errors. Then I would look at database queries, indexes and caching. I would also monitor the server and use profiling tools to find and fix performance bottlenecks.",
+      "score": 5,
+      "status": "evaluated",
+      "keywords_hit": [
+        "logs",
+        "profiling",
+        "database",
+        "index",
+        "bottleneck"
+      ]
+    }
+  ]
+}
