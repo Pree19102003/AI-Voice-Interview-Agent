@@ -1,149 +1,110 @@
-# C13 — Basic AI Voice Interview Agent (Prototype)
+# 🎤 AI Voice Interview Agent
 
-A minimal, working end-to-end interview prototype: ask a question → record a
-spoken answer → transcribe it → evaluate it → move to the next question.
-Five predefined questions, fully client-side, no backend or API keys required.
+An AI-powered prototype that simulates a technical interview using voice input. The application asks predefined interview questions, converts speech to text using the Web Speech API, evaluates responses based on simple scoring logic, and generates a downloadable interview transcript.
 
-**File:** `index.html` — open it directly in Chrome or Edge to run the demo.
+## Features
 
----
+* 🎙️ Voice-based interview using the Web Speech API
+* 📝 Manual answer entry as a fallback
+* 📋 Five predefined interview questions
+* ⭐ Automatic answer evaluation and scoring
+* 📊 Final interview summary
+* 📄 Download interview results as `transcript.json`
+* ⚠️ Robust Speech-to-Text (STT) error handling
 
-## 1. Architecture
+## Technologies Used
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         BROWSER (single page)                       │
-│                                                                       │
-│   ┌────────────┐    ┌───────────────┐    ┌────────────────────┐     │
-│   │  Question  │───▶│   Microphone   │───▶│  Web Speech API     │     │
-│   │  Engine    │    │   Capture      │    │  (SpeechRecognition)│     │
-│   │ (5 fixed   │    │  (Record /     │    │  → live transcript  │     │
-│   │  questions)│    │   Stop button) │    │                      │     │
-│   └────────────┘    └───────────────┘    └──────────┬───────────┘     │
-│                                                       │                 │
-│                                                       ▼                 │
-│                                          ┌────────────────────────┐    │
-│                                          │  Editable Transcript   │    │
-│                                          │  Box (manual fallback  │    │
-│                                          │  + correction)         │    │
-│                                          └───────────┬────────────┘    │
-│                                                       ▼                 │
-│                                          ┌────────────────────────┐    │
-│                                          │   Evaluator            │    │
-│                                          │  - keyword/concept      │    │
-│                                          │    coverage scoring    │    │
-│                                          │  - length/completeness │    │
-│                                          │    check               │    │
-│                                          │  - invalid-answer guard│    │
-│                                          └───────────┬────────────┘    │
-│                                                       ▼                 │
-│                                          ┌────────────────────────┐    │
-│                                          │  Result Store (array)  │    │
-│                                          │  {question, transcript,│    │
-│                                          │   score, status}       │    │
-│                                          └───────────┬────────────┘    │
-│                                                       ▼                 │
-│                              loop until 5/5  ──▶  Summary + JSON Export│
-└─────────────────────────────────────────────────────────────────────┘
+* HTML5
+* CSS3
+* JavaScript (ES6)
+* Web Speech API
+
+## Project Structure
+
+```text
+AI-Voice-Interview-Agent/
+│── index.html
+│── style.css
+│── script.js
+│── README.md
+│── transcript.json
 ```
 
-Flow per question (matches the spec exactly):
+## How to Run
 
-```
-Ask Question → Record Answer → Speech-to-Text → Evaluation → Next Question
-```
+### Option 1 – VS Code Live Server (Recommended)
 
-### Component choices
+1. Open the project in Visual Studio Code.
+2. Install the **Live Server** extension.
+3. Right-click `index.html`.
+4. Select **Open with Live Server**.
+5. Open the displayed localhost URL in Google Chrome.
+6. Allow microphone access when prompted.
 
-| Component | Choice | Why |
-|---|---|---|
-| Question engine | Hardcoded array of 5 Q&A rubrics in JS | Spec calls for *predefined* questions, not dynamic generation |
-| Voice capture / STT | Browser `SpeechRecognition` (Web Speech API) | Zero install, zero API key, works offline-ish, good enough for a prototype; this is the natural seam to later swap in Whisper/Deepgram/a server-side STT service |
-| Transcript | Editable `<textarea>` bound to STT output | Lets the candidate fix STT mistakes, and acts as the fallback input path when STT is unavailable or fails |
-| Evaluator | Keyword/concept-coverage rubric scored 0–10 | Deterministic, explainable, no external dependency; the seam to later swap in an LLM-graded rubric (e.g., call Claude with the transcript + ideal-answer key and ask for a 0–10 score + rationale) |
-| Output | `{ "question": ..., "score": ... }` per item, plus a `detailed_results` array and downloadable `transcript.json` | Matches the required output shape, extended with transcripts/status for debugging |
+### Option 2 – Python HTTP Server
 
----
-
-## 2. Why this is a *prototype*, not production
-
-Per the constraints, this intentionally avoids:
-- Persistent storage / accounts / multi-user sessions
-- A real NLU or LLM-based grader (swappable, but not wired up, to keep the
-  prototype dependency-free and demonstrable offline)
-- Adaptive/dynamic follow-up questioning
-- Authentication, analytics, logging infrastructure
-
-It is scoped to: prove the workflow end-to-end, for 5 fixed questions, with
-visible handling of the required edge cases.
-
----
-
-## 3. Edge cases handled
-
-| Case | Handling |
-|---|---|
-| **Empty recording** | If the transcript is blank after recording stops, the app blocks "Evaluate", shows an inline message ("Empty recording — no transcript captured"), and offers Re-record. |
-| **STT failure** (no mic, permission denied, no speech detected, browser doesn't support the API) | `recognition.onerror` is handled explicitly for `no-speech`, `not-allowed`, `service-not-allowed`, `audio-capture`, and a generic fallback message for anything else. If the Web Speech API isn't supported at all, a banner appears and the user can type the answer directly into the transcript box instead — recording is just one path to filling that box. |
-| **Invalid responses** (gibberish, too short, off-topic) | The evaluator treats <3 words as "invalid" (score 0–1) with an explicit `status: "invalid"` flag distinct from a normally-scored answer, so these are distinguishable in the output and in the summary table. |
-| **Manual correction** | The transcript box is always editable, so STT mis-hearing a technical term doesn't permanently sink the score. |
-
----
-
-## 4. Output format
-
-Per question, the core required shape:
-```json
-{ "question": "Explain REST APIs", "score": 7 }
+```bash
+python -m http.server 8000
 ```
 
-Full session export (`transcript.json`, via the "Download" button):
-```json
-{
-  "interview_summary": [
-    { "question": "Explain REST APIs.", "score": 7 },
-    { "question": "What is the difference between SQL and NoSQL databases?", "score": 6 }
-  ],
-  "average_score": 6.5,
-  "detailed_results": [
-    {
-      "question": "Explain REST APIs.",
-      "transcript": "REST is an architectural style using HTTP methods like GET POST PUT DELETE to access resources identified by a URL ...",
-      "score": 7,
-      "status": "evaluated",
-      "keywords_hit": ["http", "get", "post", "resource", "url"]
-    }
-  ]
-}
+Then open:
+
+```
+http://localhost:8000
 ```
 
----
+## Demo Workflow
 
-## 5. How to demo it
+1. Launch the application.
+2. Allow microphone permission.
+3. Answer all five interview questions.
+4. Review the evaluation summary.
+5. Click **Download Transcript**.
+6. Verify that `transcript.json` is downloaded successfully.
 
-1. Open `index.html` in Chrome or Edge (Web Speech API support is best there).
-2. Allow microphone access when prompted.
-3. For each of the 5 questions:
-   - Click **● Record Answer**, speak your answer, click **■ Stop Recording**.
-   - Review/edit the transcript if needed.
-   - Click **Evaluate** to see the score and feedback.
-   - Click **Next Question →**.
-4. After question 5, the summary view shows all five scores, the average,
-   and lets you view/download the JSON output.
-5. To test edge cases: click Record then Stop immediately without speaking
-   (empty recording), say something unrelated to the question (invalid/low
-   score), or deny mic permission when prompted (STT failure path).
+## Speech-to-Text Error Handling
 
-For a screen-recorded demo video, narrate exactly this sequence — it walks
-through the full required flow plus all three edge cases in under two minutes.
+The application handles the following scenarios:
 
----
+* Microphone permission denied
+* No speech detected
+* No microphone available
+* Browser does not support the Web Speech API
+* Generic speech recognition errors
 
-## 6. Extension points (not built, but the seams are ready)
+## Sample Output
 
-- Swap the keyword-coverage evaluator for a call to an LLM grader (send the
-  transcript + question + ideal-answer key, ask for a 0–10 score and a
-  one-line rationale).
-- Swap browser STT for a server-side STT API for better accuracy on
-  noisy audio.
-- Add adaptive difficulty or follow-up questions based on prior scores.
+A completed interview session is available in:
+
+```
+transcript.json
+```
+
+## Demo Video
+
+**Demo Video:** **
+
+## Prototype Limitations
+
+This project is a prototype intended for educational purposes.
+
+Current limitations include:
+
+* Uses browser-based speech recognition.
+* Simple rule-based answer evaluation.
+* No user authentication.
+* No database integration.
+* Works best in Google Chrome.
+
+## Future Enhancements
+
+* AI-powered answer evaluation using LLMs.
+* Database integration.
+* User authentication.
+* Dashboard for interview analytics.
+* Resume-based dynamic interview questions.
+
+## Author
+
+**Preethi G N**
+MCA Student
